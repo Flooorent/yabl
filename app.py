@@ -1,8 +1,12 @@
-from flask import Flask
+from flask import Flask, render_template
 import json
 import pandas as pd
 
-from yabl.functions import get_pct_books_read, get_repartition_per_category
+from yabl.functions import (
+    get_pct_books_read,
+    get_random_unread_book,
+    get_repartition_per_category,
+)
 
 app = Flask(__name__)
 
@@ -29,3 +33,14 @@ def index():
     }
 
     return json.dumps(output)
+
+
+@app.route('/random')
+def pick_at_random():
+    template_file = 'random_picker.html'
+    random_book = get_random_unread_book(BOOKS)
+
+    if random_book:
+        return render_template(template_file, title=random_book.title, author=random_book.author, no_unread_books=False)
+    else:
+        return render_template(template_file, no_unread_books=True)

@@ -1,7 +1,12 @@
+import numpy as np
 import pandas as pd
 import pytest
 
-from yabl.functions import get_pct_books_read, get_repartition_per_category
+from yabl.functions import (
+    get_pct_books_read,
+    get_random_unread_book,
+    get_repartition_per_category,
+)
 
 
 class TestGetPctBooksRead:
@@ -64,3 +69,43 @@ class TestGetRepartitionPerCategory:
 
         with pytest.raises(ValueError):
             get_repartition_per_category(df)
+
+
+class TestGetRandomUnreadBook:
+    def test_return_none_if_no_unread_book(self):
+        df = pd.DataFrame(data={
+            'read': [1, 1],
+            'title': ['title1', 'title2'],
+            'author': ['author1', 'author2']
+        })
+
+        actual = get_random_unread_book(df)
+        assert actual is None
+
+    def test_return_one_book_at_random(self):
+        unread_titles = ['title1', 'title2']
+        read_titles = ['title3', 'title4']
+
+        unread_authors = ['author1', 'author2']
+        read_authors = ['author3', 'author4']
+
+        df = pd.DataFrame(data={
+            'read': [1, 1, 0, 0],
+            'title': read_titles + unread_titles,
+            'author': read_authors + unread_authors,
+        })
+
+        random_book = get_random_unread_book(df)
+        assert random_book.title in unread_titles
+        assert random_book.author in unread_authors
+
+    def test_replace_nan_by_empty_string(self):
+        df = pd.DataFrame(data={
+            'read': [1, 1, 0],
+            'title': ['title1', 'title2', 'title3'],
+            'author': ['author1', 'author2', np.nan],
+        })
+
+        random_book = get_random_unread_book(df)
+        assert random_book.title == 'title3'
+        assert random_book.author == ''

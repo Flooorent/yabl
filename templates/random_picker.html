@@ -1,0 +1,9 @@
+<!doctype html>
+<title>Random Picker</title>
+<h1>Random Picker</h1>
+{% if no_unread_books %}
+<p>You've read all of your books!</p>
+{% else %}
+<p>Title: {{ title }}</p>
+<p>Author: {{ author }}</p>
+{% endif %}
