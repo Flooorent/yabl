@@ -1,0 +1,31 @@
+<!doctype html>
+<title>Unread books</title>
+
+<h1 style="text-align: center;">Summary</h1>
+
+{% if no_books %}
+<p style="text-align: center;">You don't have any book in your collection yet</p>
+{% else %}
+<h3 style="text-align: center;">{{ num_books }} books, {{ pct_read }}% read </h3>
+
+<h3 style="text-align: center;">Repartition per tag:</h3>
+
+<table style="text-align: center; margin-left:auto; margin-right:auto;">
+    <thead>
+        <tr>
+            <th>Tag</th>
+            <th>Count</th>
+            <th>Pct read</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tag, metadata in ordered_repartitions.items() %}
+            <tr>
+                <td>{{ tag }}</td>
+                <td>{{ metadata.count }}</td>
+                <td>{{ metadata.pct }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
