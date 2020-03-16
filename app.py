@@ -17,6 +17,11 @@ BOOKS = pd.read_csv(f'./data/{BOOKS_LIST_FILENAME}', header=0)
 
 @app.route('/')
 def index():
+    template_file = 'unread_books.html'
+
+    if BOOKS.empty:
+        return render_template(template_file, no_books=True)
+
     num_books = len(BOOKS)
     pct_read = get_pct_books_read(BOOKS)
     repartition_per_category = get_repartition_per_category(BOOKS)
@@ -26,13 +31,13 @@ def index():
         for key, value in sorted(repartition_per_category.items(), key=lambda item: item[1]['count'], reverse=True)
     }
 
-    output = {
-        'Number of books': num_books,
-        'Percentage read': round(pct_read, 2),
-        'Repartition per tag': ordered_repartitions,
-    }
-
-    return json.dumps(output)
+    return render_template(
+        template_file,
+        no_books=False,
+        num_books=num_books,
+        pct_read=int(round(pct_read, 2) * 100),
+        ordered_repartitions=ordered_repartitions,
+    )
 
 
 @app.route('/random')
