@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import pandas as pd
 
 from yabl.functions import (
+    get_all_categories,
     get_pct_books_read,
     get_random_unread_book,
     get_repartition_per_category,
@@ -44,19 +45,29 @@ def index():
 
 @app.route('/random', methods=[GET, POST])
 def pick_at_random():
+    categories = get_all_categories(BOOKS, ordered=True)
+    template_get_file = 'random_picker_get.html'
+    template_post_file = 'random_picker_post.html'
+
     if request.method == POST:
-        template_post_file = 'random_picker_post.html'
-        book = get_random_unread_book(BOOKS)
+        desired_category = request.form['category']
 
-        if book:
-            return render_template(
-                template_post_file,
-                title=book.title,
-                author=book.author,
-                tags=book.tags,
-                no_unread_books=False,
-            )
+        try:
+            book = get_random_unread_book(BOOKS, desired_category)
+        except TypeError:
+            return render_template(template_get_file, categories=categories)
         else:
-            return render_template(template_post_file, no_unread_books=True)
+            if book:
+                return render_template(
+                    template_post_file,
+                    title=book.title,
+                    author=book.author,
+                    tags=book.tags,
+                    categories=categories,
+                    desired_category=desired_category,
+                    no_unread_books=False,
+                )
+            else:
+                return render_template(template_post_file, no_unread_books=True)
 
-    return render_template('random_picker_get.html')
+    return render_template(template_get_file, categories=categories)

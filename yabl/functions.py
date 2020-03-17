@@ -55,16 +55,51 @@ def get_repartition_per_category(books):
     return tags_and_counts.set_index('clean_tags').to_dict(orient='index')
 
 
-def get_random_unread_book(books):
+# TODO: update function with category
+def get_random_unread_book(books, category='Any category'):
     """Pick one unread book at random.
 
     :param books: dataframe containing all books (read and unread)
     :type books: pandas.DataFrame
+    :param category: category to choose from. If passed 'Any category', all categories will be taken into account.
+    Default is 'Any category'.
+    :type category: str
+
     :return: a random unread book. If there are no unread books, return None.
     :rtype: Book or None if no unread books
     """
+    if not isinstance(category, str):
+        raise TypeError("Parameter 'category' must be a string")
+
     unread_books = books[books['read'] == 0]
+
+    if category != 'Any category':
+        # TODO: ça revient plusieurs fois à travers différentes fonctions, le cleaner
+        unread_books['clean_tags'] = unread_books['tags'].apply(lambda tags: [tag.strip() for tag in tags.split(',')])
+        unread_books = unread_books[unread_books['clean_tags'].apply(lambda tags: category in tags)]
 
     if not unread_books.empty:
         random_book = unread_books.sample(1).fillna('').to_dict(orient='list')
         return Book(title=random_book['title'][0], author=random_book['author'][0], tags=random_book['tags'][0])
+
+
+def get_all_categories(books, ordered=False):
+    """Get all categories from all books.
+
+    :param books: dataframe containing all books (read and unread)
+    :type books: pandas.DataFrame
+    :param ordered: True if output categories must be ordered, False otherwise. False by default.
+    :type ordered: bool
+    :return: all categories
+    :rtype: list
+    """
+    if books.empty:
+        return []
+
+    nested_tags = books['tags'].fillna('').apply(lambda tags: [tag.strip() for tag in tags.split(',')]).to_list()
+    unique_tags = list(set([tag for tags in nested_tags for tag in tags if tag != '']))
+
+    if ordered:
+        unique_tags.sort()
+
+    return unique_tags

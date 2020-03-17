@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from yabl.functions import (
+    get_all_categories,
     get_pct_books_read,
     get_random_unread_book,
     get_repartition_per_category,
@@ -117,3 +118,99 @@ class TestGetRandomUnreadBook:
         assert random_book.title == 'title3'
         assert random_book.author == ''
         assert random_book.tags == ''
+
+    def test_return_none_if_no_unread_book_with_category(self):
+        df = pd.DataFrame(data={
+            'read': [0, 0, 1],
+            'title': ['title1', 'title2', 'title3'],
+            'author': ['author1', 'author2', 'author3'],
+            'tags': ['novel', 'bio, history', 'sci-fi'],
+        })
+
+        actual = get_random_unread_book(df, 'sci-fi')
+        assert actual is None
+
+    def test_return_one_book_at_random_with_category(self):
+        df = pd.DataFrame(data={
+            'read': [0, 0, 0],
+            'title': ['title1', 'title2', 'title3'],
+            'author': ['author1', 'author2', 'author3'],
+            'tags': ['novel', 'bio', 'bio'],
+        })
+
+        actual = get_random_unread_book(df, 'bio')
+        assert actual.title in ['title2', 'title3']
+        assert actual.author in ['author2', 'author3']
+        assert actual.tags == 'bio'
+
+    def test_return_one_book_at_random_with_category_among_multiple_categories(self):
+        df = pd.DataFrame(data={
+            'read': [0, 0],
+            'title': ['title1', 'title2'],
+            'author': ['author1', 'author2'],
+            'tags': ['novel', 'history, bio'],
+        })
+
+        actual = get_random_unread_book(df, 'bio')
+        assert actual.title == 'title2'
+        assert actual.author == 'author2'
+        assert actual.tags == 'history, bio'
+
+
+class TestGetAllCategories:
+    def test_return_empty_list_if_no_books(self):
+        df = pd.DataFrame(columns=['read', 'author', 'tags'])
+        actual_categories = get_all_categories(df)
+        assert actual_categories == []
+
+    def test_return_empty_list_if_no_categories(self):
+        df = pd.DataFrame(data={
+            'read': [1, 0],
+            'author': ['author1', 'author2'],
+            'tags': ['', np.nan],
+        })
+
+        actual_categories = get_all_categories(df)
+        assert actual_categories == []
+
+    def test_return_list_of_categories(self):
+        df = pd.DataFrame(data={
+            'read': [1, 0],
+            'author': ['author1', 'author2'],
+            'tags': ['sci-fi', 'novel'],
+        })
+
+        actual_categories = get_all_categories(df)
+        assert isinstance(actual_categories, list)
+        assert sorted(actual_categories) == sorted(['sci-fi', 'novel'])
+
+    def test_return_list_of_deduplicated_categories(self):
+        df = pd.DataFrame(data={
+            'read': [1, 0],
+            'author': ['author1', 'author2'],
+            'tags': ['sci-fi', 'novel, sci-fi'],
+        })
+
+        actual_categories = get_all_categories(df)
+        assert isinstance(actual_categories, list)
+        assert sorted(actual_categories) == ['novel', 'sci-fi']
+
+    def test_return_ordered_list_of_categories(self):
+        df = pd.DataFrame(data={
+            'read': [1, 0],
+            'author': ['author1', 'author2'],
+            'tags': ['sci-fi', 'novel'],
+        })
+
+        actual_categories = get_all_categories(df, ordered=True)
+        assert actual_categories == ['novel', 'sci-fi']
+
+    def test_return_ordered_list_of_deduplicated_categories(self):
+        df = pd.DataFrame(data={
+            'read': [1, 0],
+            'author': ['author1', 'author2'],
+            'tags': ['sci-fi', 'novel, sci-fi'],
+        })
+
+        actual_categories = get_all_categories(df, ordered=True)
+        assert actual_categories == ['novel', 'sci-fi']
