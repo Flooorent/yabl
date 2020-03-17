@@ -3,7 +3,11 @@ from collections import namedtuple
 READ = 1
 UNREAD = 0
 
-Book = namedtuple('Book', ['title', 'author'])
+Book = namedtuple('Book', ['title', 'author', 'tags'])
+Book.__doc__ += 'Book metadata'
+Book.title.__doc__ = "book's title, str"
+Book.author.__doc__ = "book's author, str"
+Book.tags.__doc__ = "book's tags, str, if multiple tags then comma-separated str"
 
 
 def get_pct_books_read(books):
@@ -63,4 +67,4 @@ def get_random_unread_book(books):
 
     if not unread_books.empty:
         random_book = unread_books.sample(1).fillna('').to_dict(orient='list')
-        return Book(title=random_book['title'][0], author=random_book['author'][0])
+        return Book(title=random_book['title'][0], author=random_book['author'][0], tags=random_book['tags'][0])

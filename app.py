@@ -49,7 +49,13 @@ def pick_at_random():
         book = get_random_unread_book(BOOKS)
 
         if book:
-            return render_template(template_post_file, title=book.title, author=book.author, no_unread_books=False)
+            return render_template(
+                template_post_file,
+                title=book.title,
+                author=book.author,
+                tags=book.tags,
+                no_unread_books=False,
+            )
         else:
             return render_template(template_post_file, no_unread_books=True)
 

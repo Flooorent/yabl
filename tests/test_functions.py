@@ -76,7 +76,8 @@ class TestGetRandomUnreadBook:
         df = pd.DataFrame(data={
             'read': [1, 1],
             'title': ['title1', 'title2'],
-            'author': ['author1', 'author2']
+            'author': ['author1', 'author2'],
+            'tags': ['novel', 'bio, history']
         })
 
         actual = get_random_unread_book(df)
@@ -89,23 +90,30 @@ class TestGetRandomUnreadBook:
         unread_authors = ['author1', 'author2']
         read_authors = ['author3', 'author4']
 
+        unread_tags = ['bio', 'history, classic']
+        read_tags = ['novel', 'sci-fi']
+
         df = pd.DataFrame(data={
             'read': [1, 1, 0, 0],
             'title': read_titles + unread_titles,
             'author': read_authors + unread_authors,
+            'tags': read_tags + unread_tags,
         })
 
         random_book = get_random_unread_book(df)
         assert random_book.title in unread_titles
         assert random_book.author in unread_authors
+        assert random_book.tags in unread_tags
 
     def test_replace_nan_by_empty_string(self):
         df = pd.DataFrame(data={
             'read': [1, 1, 0],
             'title': ['title1', 'title2', 'title3'],
             'author': ['author1', 'author2', np.nan],
+            'tags': ['novel', 'sci-fi', np.nan],
         })
 
         random_book = get_random_unread_book(df)
         assert random_book.title == 'title3'
         assert random_book.author == ''
+        assert random_book.tags == ''
