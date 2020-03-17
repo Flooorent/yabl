@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Picker</title>
+</head>
+<body style="text-align: center;">
+    <h1>Random Picker</h1>
+
+    <form method="POST">
+        <div>
+            <label>A category in mind ?</label>
+            <select id="category" name="category">
+                <option value="Any category">Any Category</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <div>
+            <button type="submit">SURPRISE ME</button>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,8 +1,8 @@
-from flask import Flask, render_template
-import json
+from flask import Flask, render_template, request
 import pandas as pd
 
 from yabl.functions import (
+    get_all_categories,
     get_pct_books_read,
     get_random_unread_book,
     get_repartition_per_category,
@@ -13,6 +13,9 @@ app = Flask(__name__)
 # read-only for now, will need a database for updating info
 BOOKS_LIST_FILENAME = 'books_list_2020_02_16.csv'
 BOOKS = pd.read_csv(f'./data/{BOOKS_LIST_FILENAME}', header=0)
+
+GET = 'GET'
+POST = 'POST'
 
 
 @app.route('/')
@@ -40,12 +43,31 @@ def index():
     )
 
 
-@app.route('/random')
+@app.route('/random', methods=[GET, POST])
 def pick_at_random():
-    template_file = 'random_picker.html'
-    random_book = get_random_unread_book(BOOKS)
+    categories = get_all_categories(BOOKS, ordered=True)
+    template_get_file = 'random_picker_get.html'
+    template_post_file = 'random_picker_post.html'
 
-    if random_book:
-        return render_template(template_file, title=random_book.title, author=random_book.author, no_unread_books=False)
-    else:
-        return render_template(template_file, no_unread_books=True)
+    if request.method == POST:
+        desired_category = request.form['category']
+
+        try:
+            book = get_random_unread_book(BOOKS, desired_category)
+        except TypeError:
+            return render_template(template_get_file, categories=categories)
+        else:
+            if book:
+                return render_template(
+                    template_post_file,
+                    title=book.title,
+                    author=book.author,
+                    tags=book.tags,
+                    categories=categories,
+                    desired_category=desired_category,
+                    no_unread_books=False,
+                )
+            else:
+                return render_template(template_post_file, no_unread_books=True)
+
+    return render_template(template_get_file, categories=categories)
