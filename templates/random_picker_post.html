@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Picker</title>
+</head>
+<body style="text-align: center;">
+    <h1>Random Picker</h1>
+
+    {% if no_unread_books %}
+    <p>You've read all of your books!</p>
+    {% else %}
+    <p>Title: {{ title }}</p>
+    <p>Author: {{ author }}</p>
+    <form method="POST">
+        <button type="submit">ANOTHER ONE</button>
+    </form>
+    {% endif %}
+</body>
+</html>

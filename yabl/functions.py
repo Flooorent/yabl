@@ -7,6 +7,13 @@ Book = namedtuple('Book', ['title', 'author'])
 
 
 def get_pct_books_read(books):
+    """Compute the percentage fo books read.
+
+    :param books: dataframe containing all books (read and unread)
+    :type books: pandas.DataFrame
+    :return: the percentage of books read
+    :rtype: float
+    """
     if books.empty:
         raise ValueError("books DataFrame can't be empty")
 
@@ -17,6 +24,20 @@ def get_pct_books_read(books):
 
 
 def get_repartition_per_category(books):
+    """Compute for each category of books the number of all books (read and unread) and the percentage of books read.
+
+    :param books: dataframe containing all books (read and unread)
+    :type books: pandas.DataFrame
+    :return: a dict of the form
+    {
+        category1: {
+            'count': count1,
+            'pct': pct1,
+        },
+        ...
+    }
+    :rtype: dict
+    """
     if books.empty:
         raise ValueError("books DataFrame can't be empty")
 
